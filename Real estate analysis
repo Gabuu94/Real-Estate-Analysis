@@ -1,0 +1,132 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load Excel data
+df = pd.read_excel('raw_sales2.xlsx')
+
+# 1. Descriptive Statistics for Price and Bedrooms
+print("Analysis 1: Exploring Price and Bedroom Distribution")
+price_stats = df['price'].describe()
+bedroom_stats = df['bedrooms'].describe()
+print(price_stats)
+print(bedroom_stats)
+
+plt.figure(figsize=(10, 6))
+sns.histplot(df['price'], bins=20, kde=True)
+plt.title("Price Distribution")
+plt.xlabel("Price")
+plt.ylabel("Frequency")
+plt.show()
+
+# 2. Time Series Analysis of Prices
+print("Analysis 2: Analyzing Price Trends Over Time")
+df['date'] = pd.to_datetime(df['date'])
+time_series_data = df.groupby('date')['price'].mean()
+
+plt.figure(figsize=(12, 6))
+time_series_data.plot()
+plt.title("Price Trends Over Time")
+plt.xlabel("Date")
+plt.ylabel("Average Price")
+plt.show()
+
+# 3. Price Distribution by Postcode
+print("Analysis 3: Understanding Price Variation Across Postcodes")
+postcode_price = df.groupby('postcode')['price'].mean()
+
+plt.figure(figsize=(12, 6))
+postcode_price.plot(kind='bar')
+plt.title("Price Distribution by Postcode")
+plt.xlabel("Postcode")
+plt.ylabel("Average Price")
+plt.show()
+
+# 4. Correlation between Price and Bedrooms
+print("Analysis 4: Relationship between Price and Bedrooms")
+correlation = df['price'].corr(df['bedrooms'])
+print("Correlation between Price and Bedrooms:", correlation)
+
+plt.figure(figsize=(8, 6))
+sns.scatterplot(data=df, x='bedrooms', y='price')
+plt.title("Price vs Bedrooms")
+plt.xlabel("Bedrooms")
+plt.ylabel("Price")
+plt.show()
+
+# 5. Price Trends by Bedroom Count
+print("Analysis 5: Impact of Bedrooms on Price Trends")
+bedroom_price = df.groupby('bedrooms')['price'].mean()
+
+plt.figure(figsize=(10, 6))
+bedroom_price.plot(marker='o')
+plt.title("Price Trends by Bedroom Count")
+plt.xlabel("Bedrooms")
+plt.ylabel("Average Price")
+plt.xticks(df['bedrooms'].unique())
+plt.show()
+
+# Continue with the rest of the analyses in a similar fashion...
+
+
+# Filter data for 4-bedroom houses
+df_4_bedrooms = df[df['bedrooms'] == 4]
+
+# Extract year from date
+df_4_bedrooms['year'] = df_4_bedrooms['date'].dt.year
+
+# Group data by postcode and year, and calculate average price
+postcode_yearly_price = df_4_bedrooms.groupby(['postcode', 'year'])[
+    'price'].mean().reset_index()
+
+# Create a line graph for each postcode
+postcodes = postcode_yearly_price['postcode'].unique()
+plt.figure(figsize=(12, 6))
+
+for postcode in postcodes:
+    data = postcode_yearly_price[postcode_yearly_price['postcode'] == postcode]
+    plt.plot(data['year'], data['price'], label=f'Postcode {postcode}')
+
+plt.title("Annual Change of Price for 4-Bedroom Houses by Postcode")
+plt.xlabel("Year")
+plt.ylabel("Average Price")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+
+# Load Excel data
+df = pd.read_excel('raw_sales2.xlsx')
+df['date'] = pd.to_datetime(df['date'])
+
+# Extract year from date
+df['year'] = df['date'].dt.year
+
+# Group data by year and bedrooms, and calculate the count of sales
+yearly_bedroom_sales = df.groupby(
+    ['year', 'bedrooms']).size().reset_index(name='sales_count')
+
+# Create a line graph
+plt.figure(figsize=(12, 6))
+
+for bedrooms in df['bedrooms'].unique():
+    data = yearly_bedroom_sales[yearly_bedroom_sales['bedrooms'] == bedrooms]
+    plt.plot(data['year'], data['sales_count'], label=f'{bedrooms} Bedrooms')
+
+plt.title("Annual Sales per Number of Bedrooms")
+plt.xlabel("Year")
+plt.ylabel("Number of Sales")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+
+# Load Excel data
+df = pd.read_excel('raw_sales2.xlsx')
+
+# Find the row with the highest price
+most_expensive_row = df[df['price'] == df['price'].max()]
+
+# Print the data of the most expensive house
+print("Data of the Most Expensive House Sold:")
+print(most_expensive_row)
